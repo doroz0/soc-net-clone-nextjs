@@ -14,8 +14,10 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "experimentalDecorators": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "mobx": ["./mobx.js"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
