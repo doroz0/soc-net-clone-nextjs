@@ -6,7 +6,7 @@ export class Post extends jsonapiModel(PureModel) {
   public static readonly type = "posts";
 
   @Attribute({ isIdentifier: true })
-  id!: number;
+  id!: string;
 
   @Attribute()
   body!: string;

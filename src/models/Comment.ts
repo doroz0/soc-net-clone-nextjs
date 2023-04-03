@@ -6,7 +6,7 @@ export class Comment extends jsonapiModel(PureModel) {
   public static readonly type = "comments";
 
   @Attribute({ isIdentifier: true })
-  id!: number;
+  id!: string;
 
   @Attribute()
   body!: string;

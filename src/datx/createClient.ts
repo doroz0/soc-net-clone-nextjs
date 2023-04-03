@@ -10,6 +10,7 @@ export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
 
 export function createClient() {
   config.baseUrl = "https://socnetcloneapi20230402183653.azurewebsites.net/";
+  // config.baseUrl = "http://localhost:7228/";
   config.cache = CachingStrategy.NetworkOnly;
   const client = new JsonapiSwrClient();
   return client;

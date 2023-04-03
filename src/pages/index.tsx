@@ -21,7 +21,7 @@ const lorem = new LoremIpsum({
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedPost, setSelectedPost] = useState<number | null>(null);
+  const [selectedPost, setSelectedPost] = useState<string | null>(null);
 
   const { data: posts, error, mutate } = useDatx(postsQuery);
 
@@ -53,35 +53,37 @@ export default function Home() {
   }
 
   return (
-    <Flex p="24px" flexDir="column" justifyContent="flex-start">
-      <Flex mt="24px">
-        <Input ref={inputRef} placeholder="New post" isDisabled={createStatus === "running"} />
-        <Button onClick={() => create(inputRef.current?.value)} isLoading={createStatus === "running"}>
-          Post
-        </Button>
-        <Button onClick={randomPost} isLoading={createStatus === "running"}>
-          RndPost
-        </Button>
+    <Center mx="auto" maxW="768px">
+      <Flex p="24px" flexDir="column" justifyContent="flex-start">
+        <Flex mt="24px">
+          <Input ref={inputRef} placeholder="New post" isDisabled={createStatus === "running"} />
+          <Button onClick={() => create(inputRef.current?.value)} isLoading={createStatus === "running"}>
+            Post
+          </Button>
+          <Button onClick={randomPost} isLoading={createStatus === "running"}>
+            RndPost
+          </Button>
+        </Flex>
+
+        <VStack pos="relative" spacing="24px" mt="24px">
+          {posts?.data.map((post) => (
+            <Post
+              key={post.id}
+              post={post}
+              destroy={() => destroy(`${post.id}`)}
+              select={() => setSelectedPost(post.id)}
+            />
+          ))}
+
+          {destroyStatus === "running" && (
+            <Center pos="absolute" w="100vw" h="calc(100% + 48px)" top="-24px" bg="blackAlpha.500">
+              <Spinner boxSize="100px" />
+            </Center>
+          )}
+        </VStack>
+
+        <PostModal id={selectedPost} onClose={() => setSelectedPost(null)} />
       </Flex>
-
-      <VStack pos="relative" spacing="4px" mt="24px">
-        {posts?.data.map((post) => (
-          <Post
-            key={post.id}
-            post={post}
-            destroy={() => destroy(`${post.id}`)}
-            select={() => setSelectedPost(post.id)}
-          />
-        ))}
-
-        {destroyStatus === "running" && (
-          <Center pos="absolute" w="100vw" h="calc(100% + 48px)" top="-24px" bg="blackAlpha.500">
-            <Spinner boxSize="100px" />
-          </Center>
-        )}
-      </VStack>
-
-      <PostModal id={selectedPost} onClose={() => setSelectedPost(null)} />
-    </Flex>
+    </Center>
   );
 }

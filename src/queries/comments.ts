@@ -1,10 +1,15 @@
-import { IGetManyExpression } from "@datx/swr";
-import { Comment } from "@/models/Comment";
+import { IGetRelatedResourcesExpression } from "@datx/swr";
+import { Post } from "@/models/Post";
 
-export const getCommentsQuery = (id: string): IGetManyExpression<typeof Comment> => ({
-  op: "getMany",
-  type: `posts/${id}/comments` as any,
-  queryParams: {
-    sort: "created",
-  },
-});
+export const getPostComentsRelationshipQuery = (id?: string) =>
+  id
+    ? ({
+        id,
+        op: "getRelatedResources",
+        type: `posts`,
+        relation: "comments",
+        queryParams: {
+          sort: "created",
+        },
+      } as const satisfies IGetRelatedResourcesExpression<typeof Post>)
+    : null;

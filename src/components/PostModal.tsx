@@ -16,7 +16,7 @@ import { format } from "date-fns";
 import { FC, useRef } from "react";
 
 interface IPostModal {
-  id: number | null;
+  id: string | null;
   onClose: () => void;
 }
 
