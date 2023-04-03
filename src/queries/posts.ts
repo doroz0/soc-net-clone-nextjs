@@ -1,4 +1,4 @@
-import { IGetManyExpression, IGetOneExpression } from "@datx/swr";
+import { IGetManyExpression, IGetOneExpression, IGetRelatedResourcesExpression } from "@datx/swr";
 import { Post } from "../models/Post";
 
 export const postsQuery: IGetManyExpression<typeof Post> = {
@@ -14,3 +14,16 @@ export const getPostQuery = (id: string): IGetOneExpression<typeof Post> => ({
   op: "getOne",
   type: "posts",
 });
+
+export const getPostComentsRelationshipQuery = (id?: string) =>
+  id
+    ? ({
+        id,
+        op: "getRelatedResources",
+        type: `posts`,
+        relation: "comments",
+        queryParams: {
+          sort: "created",
+        },
+      } as const satisfies IGetRelatedResourcesExpression<typeof Post>)
+    : null;

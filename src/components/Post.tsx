@@ -1,10 +1,10 @@
 import { FC, useRef, useState } from "react";
-import { Button, Center, Divider, Flex, Input, Text, VStack } from "@chakra-ui/react";
+import { Button, Center, Flex, Input, Text, VStack } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
 import { Post as PostModel } from "@/models/Post";
 import { useDatx, useMutation } from "@datx/swr";
-import { getPostComentsRelationshipQuery } from "@/queries/comments";
 import { createComment } from "@/mutations/comments";
+import { getPostComentsRelationshipQuery } from "@/queries/posts";
 
 // @ts-ignore
 import { CloseIcon } from "@chakra-ui/icons";
