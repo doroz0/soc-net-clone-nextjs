@@ -11,7 +11,7 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/react";
-import { useDatx } from "@datx/swr";
+import { useDatx, useMutation } from "@datx/swr";
 import { format } from "date-fns";
 import { FC, useRef } from "react";
 
@@ -24,17 +24,15 @@ export const PostModal: FC<IPostModal> = ({ id, onClose }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: post, mutate } = useDatx(id ? getPostQuery(`${id}`) : null);
 
-  const edit = async () => {
-    if (!inputRef.current?.value) return;
+  // @ts-ignore
+  const [update, { status }] = useMutation(updatePost, {
+    onSuccess: async () => {
+      mutate();
+      onClose();
+    },
+  });
 
-    await updatePost(post!.data, {
-      body: inputRef.current.value,
-    });
-
-    await mutate();
-
-    onClose();
-  };
+  if (!post) return null;
 
   return (
     <Modal isOpen={!!post} onClose={onClose}>
@@ -52,7 +50,11 @@ export const PostModal: FC<IPostModal> = ({ id, onClose }) => {
           <Button mr={3} onClick={onClose}>
             Close
           </Button>
-          <Button colorScheme="blue" mr={3} onClick={edit}>
+          <Button
+            colorScheme="blue"
+            mr={3}
+            onClick={() => inputRef.current && update({ post: post.data, body: inputRef.current.value })}
+          >
             Edit
           </Button>
         </ModalFooter>

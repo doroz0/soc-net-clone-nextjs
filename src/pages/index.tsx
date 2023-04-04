@@ -57,7 +57,10 @@ export default function Home() {
       <Flex p="24px" flexDir="column" justifyContent="flex-start">
         <Flex mt="24px">
           <Input ref={inputRef} placeholder="New post" isDisabled={createStatus === "running"} />
-          <Button onClick={() => create(inputRef.current?.value)} isLoading={createStatus === "running"}>
+          <Button
+            onClick={() => inputRef.current && create(inputRef.current.value)}
+            isLoading={createStatus === "running"}
+          >
             Post
           </Button>
           <Button onClick={randomPost} isLoading={createStatus === "running"}>
