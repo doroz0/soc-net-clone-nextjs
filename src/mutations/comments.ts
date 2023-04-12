@@ -12,7 +12,16 @@ export const createComment = (client: JsonapiSwrClient, { post, body }: { post: 
   return client.request<Comment>(url, "POST", { data });
 };
 
-export const updateComment = (comment: Comment, data: any) => updateModel(comment, data).save();
+export const updateComment = async (
+  client: JsonapiSwrClient,
+  { comment, body }: { comment: Comment; body: string }
+) => {
+  const data = modelToJsonApi(updateModel(comment, { body }), true);
+  delete data.relationships;
+
+  const url = getModelEndpointUrl(comment);
+  return client.request<Comment>(url, "PATCH", { data });
+};
 
 export const deleteComment = (client: JsonapiSwrClient, id: string) => {
   return client.request(`comments/${id}`, "DELETE");

@@ -1,27 +1,43 @@
+// @ts-ignore
+import { CloseIcon } from "@chakra-ui/icons";
+
 import { FC, useRef, useState } from "react";
 import { Button, Center, Flex, Input, Text, VStack } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
 import { Post as PostModel } from "@/models/Post";
 import { useDatx, useMutation } from "@datx/swr";
 import { createComment } from "@/mutations/comments";
-import { getPostComentsRelationshipQuery } from "@/queries/posts";
+import { getPostComentsRelationshipQuery, postsQuery } from "@/queries/posts";
+import { getModelRefMeta } from "@datx/jsonapi";
+import { Comment } from "./Comment";
+import { deletePost } from "@/mutations/posts";
+import { mutate } from "swr";
+import { PostModal } from "./PostModal";
 
-// @ts-ignore
-import { CloseIcon } from "@chakra-ui/icons";
-
-export const Post: FC<{ post: PostModel; destroy: () => void; select: () => void }> = ({ post, select, destroy }) => {
+export const Post: FC<{ post: PostModel }> = ({ post }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showComments, setShowComments] = useState(false);
-  const { data: comments, error, mutate } = useDatx(showComments ? getPostComentsRelationshipQuery(post?.id) : null);
+  const [showPostModal, setPostModal] = useState(false);
 
-  // @ts-ignore
-  const [create, { status }] = useMutation(createComment, {
+  const { data: comments, mutate: mutateComments } = useDatx(
+    showComments ? getPostComentsRelationshipQuery(post?.id) : null
+  );
+
+  const [create, { status: createStatus }] = useMutation(createComment as any, {
     onSuccess: async () => {
       const input = inputRef.current;
       if (input) input.value = "";
-      mutate();
+      mutateComments();
     },
   });
+
+  const [destroy] = useMutation(deletePost as any, {
+    onSuccess: async () => {
+      mutate(postsQuery);
+    },
+  });
+
+  const commentsCount = getModelRefMeta(post)?.comments?.total || 0;
 
   return (
     <Flex flexDir="column" w="full">
@@ -51,11 +67,11 @@ export const Post: FC<{ post: PostModel; destroy: () => void; select: () => void
           <Flex my="16px" ml="-16px" h="1px" w="calc(100% + 32px)" bg="black" />
 
           <Flex justifyContent="flex-end">
-            <Button variant="ghost" size="xs" onClick={select}>
+            <Button variant="ghost" size="xs" onClick={() => setPostModal(true)}>
               Edit post
             </Button>
             <Button variant="ghost" size="xs" onClick={() => setShowComments((s) => !s)}>
-              {showComments ? "Hide" : "See"} comments
+              {showComments ? "Hide" : "See"} comments ({commentsCount})
             </Button>
           </Flex>
         </Flex>
@@ -66,7 +82,7 @@ export const Post: FC<{ post: PostModel; destroy: () => void; select: () => void
           borderRadius="8px"
           borderLeftRadius="0"
           _hover={{ borderColor: "red.500", bg: "red.100", cursor: "pointer" }}
-          onClick={destroy}
+          onClick={() => destroy(post.id)}
         >
           <CloseIcon color="red.500" boxSize="16px" />
         </Center>
@@ -91,10 +107,17 @@ export const Post: FC<{ post: PostModel; destroy: () => void; select: () => void
           ))}
           <Flex w="full">
             <Input ref={inputRef} placeholder="Add comment" />
-            <Button onClick={() => create({ post: post, body: inputRef.current?.value })}>Comment</Button>
+            <Button
+              isLoading={createStatus === "running"}
+              onClick={() => create({ post: post, body: inputRef.current?.value })}
+            >
+              Comment
+            </Button>
           </Flex>
         </VStack>
       )}
+
+      {showPostModal && <PostModal id={post.id} onClose={() => setPostModal(false)} />}
     </Flex>
   );
 };

@@ -1,11 +1,9 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { useDatx, useMutation } from "@datx/swr";
 import { Button, Center, Flex, Input, Spinner, VStack } from "@chakra-ui/react";
 import { LoremIpsum } from "lorem-ipsum";
-import { createPost, deletePost } from "@/mutations/posts";
+import { createPost } from "@/mutations/posts";
 import { postsQuery } from "@/queries/posts";
-import { PostModal } from "@/components/PostModal";
-
 import { Post } from "@/components/Post";
 
 const lorem = new LoremIpsum({
@@ -21,12 +19,9 @@ const lorem = new LoremIpsum({
 
 export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [selectedPost, setSelectedPost] = useState<string | null>(null);
+  const { data: posts, error, mutate, isValidating } = useDatx(postsQuery);
 
-  const { data: posts, error, mutate } = useDatx(postsQuery);
-
-  // @ts-ignore
-  const [create, { status: createStatus }] = useMutation(createPost, {
+  const [create, { status: createStatus }] = useMutation(createPost as any, {
     onSuccess: async () => {
       const input = inputRef.current;
       if (input) input.value = "";
@@ -34,12 +29,9 @@ export default function Home() {
     },
   });
 
-  // @ts-ignore
-  const [destroy, { status: destroyStatus }] = useMutation(deletePost, {
-    onSuccess: async () => {
-      mutate();
-    },
-  });
+  if (error) {
+    return <pre>{JSON.stringify(error, null, 2)}</pre>;
+  }
 
   const randomPost = () => {
     if (inputRef.current) {
@@ -47,10 +39,6 @@ export default function Home() {
       create(inputRef.current?.value);
     }
   };
-
-  if (error) {
-    return <pre>{JSON.stringify(error, null, 2)}</pre>;
-  }
 
   return (
     <Center mx="auto" maxW="768px">
@@ -70,22 +58,15 @@ export default function Home() {
 
         <VStack pos="relative" spacing="24px" mt="24px">
           {posts?.data.map((post) => (
-            <Post
-              key={post.id}
-              post={post}
-              destroy={() => destroy(`${post.id}`)}
-              select={() => setSelectedPost(post.id)}
-            />
+            <Post key={post.id} post={post} />
           ))}
 
-          {destroyStatus === "running" && (
-            <Center pos="absolute" w="100vw" h="calc(100% + 48px)" top="-24px" bg="blackAlpha.500">
+          {posts?.data && isValidating && (
+            <Center pos="fixed" top="0" left="0" w="100vw" h="100vh" bg="blackAlpha.500">
               <Spinner boxSize="100px" />
             </Center>
           )}
         </VStack>
-
-        <PostModal id={selectedPost} onClose={() => setSelectedPost(null)} />
       </Flex>
     </Center>
   );
