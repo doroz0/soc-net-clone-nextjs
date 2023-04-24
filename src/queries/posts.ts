@@ -15,7 +15,7 @@ export const getPostQuery = (id: string): IGetOneExpression<typeof Post> => ({
   type: "posts",
 });
 
-export const getPostComentsRelationshipQuery = (id?: string) =>
+export const getPostComentsRelationshipPageQuery = (id?: string, index = 1, size = 4) =>
   id
     ? ({
         id,
@@ -23,7 +23,15 @@ export const getPostComentsRelationshipQuery = (id?: string) =>
         type: `posts`,
         relation: "comments",
         queryParams: {
-          sort: "created",
+          sort: "-created",
+          include: "post",
+          fields: {
+            posts: "id",
+          },
+          custom: [
+            { key: "page[number]", value: String(index) },
+            { key: "page[size]", value: String(size) },
+          ],
         },
       } as const satisfies IGetRelatedResourcesExpression<typeof Post>)
     : null;

@@ -1,33 +1,52 @@
-// @ts-ignore
-import { CloseIcon } from "@chakra-ui/icons";
-
 import { FC, useRef, useState } from "react";
 import { Button, Center, Flex, Input, Text, VStack } from "@chakra-ui/react";
 import { formatDistanceToNow } from "date-fns";
 import { Post as PostModel } from "@/models/Post";
-import { useDatx, useMutation } from "@datx/swr";
+import { CollectionResponse, useDatxInfinite, useMutation } from "@datx/swr";
 import { createComment } from "@/mutations/comments";
-import { getPostComentsRelationshipQuery, postsQuery } from "@/queries/posts";
+import { getPostComentsRelationshipPageQuery, postsQuery } from "@/queries/posts";
 import { getModelRefMeta } from "@datx/jsonapi";
 import { Comment } from "./Comment";
 import { deletePost } from "@/mutations/posts";
 import { mutate } from "swr";
 import { PostModal } from "./PostModal";
+import { ChevronUpIcon, CloseIcon } from "@chakra-ui/icons";
+import { LoremIpsum } from "lorem-ipsum";
+
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 4,
+    min: 1,
+  },
+  wordsPerSentence: {
+    max: 10,
+    min: 4,
+  },
+});
 
 export const Post: FC<{ post: PostModel }> = ({ post }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [showComments, setShowComments] = useState(false);
   const [showPostModal, setPostModal] = useState(false);
 
-  const { data: comments, mutate: mutateComments } = useDatx(
-    showComments ? getPostComentsRelationshipQuery(post?.id) : null
-  );
+  const getKey = (pageIndex: number, previousPageData: CollectionResponse | null) => {
+    if (!showComments || (previousPageData && previousPageData.data.length === 0)) return null;
+    return getPostComentsRelationshipPageQuery(post?.id, pageIndex + 1, 4);
+  };
+
+  const {
+    data: comments,
+    mutate: mutateComments,
+    size,
+    setSize,
+  } = useDatxInfinite(getKey, {
+    revalidateAll: true,
+  });
 
   const [create, { status: createStatus }] = useMutation(createComment as any, {
     onSuccess: async () => {
       const input = inputRef.current;
       if (input) input.value = "";
-      mutateComments();
     },
   });
 
@@ -36,6 +55,13 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
       mutate(postsQuery);
     },
   });
+
+  const randomComment = async () => {
+    if (inputRef.current) {
+      inputRef.current.value = lorem.generateParagraphs(1);
+      return create({ post, body: inputRef.current?.value });
+    }
+  };
 
   const commentsCount = getModelRefMeta(post)?.comments?.total || 0;
 
@@ -100,18 +126,27 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
           borderBottomRadius="8px"
           bg="blackAlpha.100"
         >
-          {(comments?.data || []).map((comment) => (
-            <Flex key={comment.id} p="4px" w="full" _hover={{ bg: "blackAlpha.300" }}>
-              {comment.body}
-            </Flex>
+          <Button variant="link" onClick={() => setSize(size + 1)}>
+            <ChevronUpIcon /> Load more
+          </Button>
+          {(
+            comments
+              ?.map((c) => c.data)
+              .flat()
+              .reverse() || []
+          ).map((comment) => (
+            <Comment key={comment.id} comment={comment as any} />
           ))}
           <Flex w="full">
             <Input ref={inputRef} placeholder="Add comment" />
             <Button
               isLoading={createStatus === "running"}
-              onClick={() => create({ post: post, body: inputRef.current?.value })}
+              onClick={() => create({ post, body: inputRef.current?.value }).then(() => mutateComments())}
             >
               Comment
+            </Button>
+            <Button isLoading={createStatus === "running"} onClick={() => randomComment().then(() => mutateComments())}>
+              RndComment
             </Button>
           </Flex>
         </VStack>
