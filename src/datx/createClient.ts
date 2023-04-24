@@ -9,7 +9,7 @@ export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
 }
 
 export function createClient() {
-  config.baseUrl = "http://localhost:7228/";
+  config.baseUrl = "http://129.159.254.60:25565/";
   config.transformRequest = (options: ICollectionFetchOpts) => {
     if (options.url.includes("?")) {
       const queryParams = options.url.split("?")[1];
