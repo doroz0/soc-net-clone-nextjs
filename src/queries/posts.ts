@@ -24,9 +24,10 @@ export const getPostComentsRelationshipPageQuery = (id?: string, index = 1, size
         relation: "comments",
         queryParams: {
           sort: "-created",
-          include: "post",
+          include: ["post", "user"],
           fields: {
             posts: "id",
+            users: ["id", "username"],
           },
           custom: [
             { key: "page[number]", value: String(index) },

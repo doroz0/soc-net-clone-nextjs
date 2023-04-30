@@ -15,17 +15,16 @@ import { useDatx, useMutation } from "@datx/swr";
 import { format } from "date-fns";
 import { FC, useRef } from "react";
 
-interface IPostModal {
+interface IEditPostModal {
   id: string | null;
   onClose: () => void;
 }
 
-export const PostModal: FC<IPostModal> = ({ id, onClose }) => {
+export const EditPostModal: FC<IEditPostModal> = ({ id, onClose }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { data: post, mutate } = useDatx(id ? getPostQuery(`${id}`) : null);
 
-  // @ts-ignore
-  const [update, { status }] = useMutation(updatePost, {
+  const [update, { status }] = useMutation(updatePost as any, {
     onSuccess: async () => {
       mutate();
       onClose();

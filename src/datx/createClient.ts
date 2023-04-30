@@ -10,6 +10,9 @@ export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
 
 export function createClient() {
   config.baseUrl = "http://129.159.254.60:25565/";
+  config.baseUrl = "http://localhost:7228/api/";
+
+  config.cache = CachingStrategy.NetworkOnly;
   config.transformRequest = (options: ICollectionFetchOpts) => {
     if (options.url.includes("?")) {
       const queryParams = options.url.split("?")[1];
@@ -24,9 +27,8 @@ export function createClient() {
 
     return options;
   };
-  config.cache = CachingStrategy.NetworkOnly;
-  const client = new JsonapiSwrClient();
-  return client;
+
+  return new JsonapiSwrClient();
 }
 
 export type Client = typeof JsonapiSwrClient;

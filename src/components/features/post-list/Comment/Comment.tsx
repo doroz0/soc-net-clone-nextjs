@@ -1,6 +1,6 @@
 import { FC, useRef, useState } from "react";
 import { Comment as CommentModel } from "@/models/Comment";
-import { Button, CloseButton, Flex, IconButton, Input, Text, Textarea } from "@chakra-ui/react";
+import { Button, CloseButton, Flex, IconButton, Text, Textarea } from "@chakra-ui/react";
 import { deleteComment, updateComment } from "@/mutations/comments";
 import { mutate } from "swr";
 import { getPostComentsRelationshipPageQuery } from "@/queries/posts";
