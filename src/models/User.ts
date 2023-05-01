@@ -1,24 +1,24 @@
 import { Attribute, PureModel } from "@datx/core";
 import { jsonapiModel } from "@datx/jsonapi";
+import { Comment } from "./Comment";
 import { Post } from "./Post";
-import { User } from "./User";
 
-export class Comment extends jsonapiModel(PureModel) {
-  public static readonly type = "comments";
+export class User extends jsonapiModel(PureModel) {
+  public static readonly type = "users";
 
   @Attribute({ isIdentifier: true })
   id!: string;
 
   @Attribute()
-  body!: string;
+  email!: string;
+
+  @Attribute()
+  username!: string;
 
   @Attribute()
   created!: string;
 
-  @Attribute()
-  modified!: string;
+  comments!: Comment[];
 
-  post!: Post;
-
-  user!: User;
+  post!: Post[];
 }

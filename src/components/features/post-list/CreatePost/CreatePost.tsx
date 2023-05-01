@@ -1,42 +1,32 @@
 import { FC, useRef } from "react";
 import { useMutation } from "@datx/swr";
 import { Button, Flex, FlexProps, Input } from "@chakra-ui/react";
-import { LoremIpsum } from "lorem-ipsum";
 import { createPost } from "@/mutations/posts";
 import { mutate } from "swr";
 import { postsQuery } from "@/queries/posts";
-
-const lorem = new LoremIpsum({
-  sentencesPerParagraph: {
-    max: 4,
-    min: 1,
-  },
-  wordsPerSentence: {
-    max: 10,
-    min: 4,
-  },
-});
+import { lorem } from "@/utils/lorem";
 
 export const PostCreator: FC<FlexProps> = ({ ...rest }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [create, { status: createStatus }] = useMutation(createPost as any, {
     onSuccess: async () => {
-      const input = inputRef.current;
-      if (input) input.value = "";
+      inputRef.current!.value = "";
       mutate(postsQuery);
     },
   });
 
   const randomPost = () => {
     if (inputRef.current) {
-      inputRef.current.value = lorem.generateParagraphs(1);
+      inputRef.current.value = lorem(1);
       create(inputRef.current.value);
     }
   };
 
   const post = () => {
-    if (inputRef.current) create(inputRef.current.value);
+    if (inputRef.current?.value) {
+      create(inputRef.current.value);
+    }
   };
 
   return (

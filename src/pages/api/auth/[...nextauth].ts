@@ -1,6 +1,6 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 
-export default NextAuth({
+export const authOptions: AuthOptions = {
   providers: [
     {
       id: "custom",
@@ -19,6 +19,7 @@ export default NextAuth({
       }),
     },
   ],
+  secret: "www",
   callbacks: {
     jwt({ token, user, account }) {
       if (account) {
@@ -29,7 +30,13 @@ export default NextAuth({
     },
     session({ session, token }) {
       // TODO: There has to be a better way
-      return Object.assign(session, { accessToken: token.accessToken, user: token.user });
+      return Object.assign(session, {
+        accessToken: token.accessToken,
+        user: token.user,
+        expires: new Date((token.exp as number) * 1000).toISOString(),
+      });
     },
   },
-});
+};
+
+export default NextAuth(authOptions);

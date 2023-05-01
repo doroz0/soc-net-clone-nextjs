@@ -1,61 +1,46 @@
+import { Post } from "@/models/Post";
 import { updatePost } from "@/mutations/posts";
 import { getPostQuery } from "@/queries/posts";
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalCloseButton,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  ModalOverlay,
-} from "@chakra-ui/react";
-import { useDatx, useMutation } from "@datx/swr";
-import { format } from "date-fns";
+import { Button, HStack, Modal, Textarea } from "@chakra-ui/react";
+import { ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay } from "@chakra-ui/react";
+import { useMutation } from "@datx/swr";
 import { FC, useRef } from "react";
+import { mutate } from "swr";
 
 interface IEditPostModal {
-  id: string | null;
+  post: Post;
   onClose: () => void;
 }
 
-export const EditPostModal: FC<IEditPostModal> = ({ id, onClose }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const { data: post, mutate } = useDatx(id ? getPostQuery(`${id}`) : null);
+export const EditPostModal: FC<IEditPostModal> = ({ post, onClose }) => {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [update, { status }] = useMutation(updatePost as any, {
     onSuccess: async () => {
-      mutate();
+      mutate(getPostQuery(post.id));
       onClose();
     },
   });
 
-  if (!post) return null;
+  const doUpdatePost = () => {
+    if (inputRef.current?.value) {
+      update({ post, body: inputRef.current.value });
+    }
+  };
 
   return (
-    <Modal isOpen={!!post} onClose={onClose}>
+    <Modal isOpen={!!post} onClose={onClose} size="2xl">
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>
-          {format(new Date(post?.data.modified || post?.data.created || 0), "yyyy-MM-dd HH:mm:ss")}
-        </ModalHeader>
+        <ModalHeader>Edit post</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Input ref={inputRef} key={id} defaultValue={post?.data.body} />
+          <Textarea ref={inputRef} defaultValue={post.body} />
         </ModalBody>
 
-        <ModalFooter>
-          <Button mr={3} onClick={onClose}>
-            Close
-          </Button>
-          <Button
-            colorScheme="blue"
-            mr={3}
-            onClick={() => inputRef.current && update({ post: post.data, body: inputRef.current.value })}
-          >
-            Edit
-          </Button>
+        <ModalFooter as={HStack}>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={doUpdatePost}>Edit</Button>
         </ModalFooter>
       </ModalContent>
     </Modal>

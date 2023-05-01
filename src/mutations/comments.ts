@@ -8,6 +8,7 @@ export const createComment = (client: JsonapiSwrClient, { post, body }: { post: 
   const model = new Comment({ body, post }, client);
   const url = getModelEndpointUrl(model);
   const data = modelToJsonApi(model);
+  delete data.relationships.user;
 
   return client.request<Comment>(url, "POST", { data });
 };

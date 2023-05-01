@@ -1,17 +1,13 @@
 import { FC, useMemo } from "react";
 import { Button, StackProps, VStack } from "@chakra-ui/react";
 import { Post as PostModel } from "@/models/Post";
-import { CollectionResponse, useDatxInfinite } from "@datx/swr";
-import { getPostComentsRelationshipPageQuery } from "@/queries/posts";
+import { useDatxInfinite } from "@datx/swr";
+import { getPostComentsRelationshipPageKey } from "@/queries/posts";
 import { Comment } from "../Comment/Comment";
 import { ChevronUpIcon } from "@chakra-ui/icons";
 
 export const CommentList: FC<{ post: PostModel } & StackProps> = ({ post, ...rest }) => {
-  const getKey = (pageIndex: number, previousPageData: CollectionResponse | null) => {
-    if (previousPageData && previousPageData.data.length === 0) return null;
-    return getPostComentsRelationshipPageQuery(post.id, pageIndex + 1, 4);
-  };
-
+  const getKey = getPostComentsRelationshipPageKey(post.id);
   const { data: comments, size, setSize } = useDatxInfinite(getKey, { revalidateAll: true });
   const commentsFlatten = useMemo(() => (comments?.map((c) => c.data).flat() || []).reverse(), [comments]);
 

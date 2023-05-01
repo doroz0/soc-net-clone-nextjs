@@ -25,7 +25,6 @@ export const App: FC<{ children?: ReactNode }> = ({ children }) => {
 
   // TODO: There has to be a better way
   useEffect(() => {
-    console.log({ session });
     const { accessToken } = (session || {}) as any;
     config.defaultFetchOptions = {
       ...(config.defaultFetchOptions || {}),

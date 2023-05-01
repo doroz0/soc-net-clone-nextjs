@@ -7,6 +7,7 @@ export const createPost = (client: JsonapiSwrClient, body: string) => {
   const model = new Post({ body });
   const url = getModelEndpointUrl(model);
   const data = modelToJsonApi(model);
+  delete data.relationships.user;
 
   return client.request<Post>(url, "POST", { data });
 };

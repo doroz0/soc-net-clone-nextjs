@@ -3,9 +3,12 @@ import { CachingStrategy, ICollectionFetchOpts, config } from "@datx/jsonapi";
 import { jsonapiSwrClient } from "@datx/swr";
 import { Comment } from "../models/Comment";
 import { Post } from "../models/Post";
+import { User } from "@/models/User";
+
+import "./relationships";
 
 export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
-  public static types = [Post, Comment];
+  public static types = [Post, Comment, User];
 }
 
 export function createClient() {
