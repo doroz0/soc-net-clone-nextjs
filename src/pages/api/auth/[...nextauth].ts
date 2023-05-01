@@ -6,7 +6,7 @@ export const authOptions: AuthOptions = {
       id: "custom",
       name: "Custom",
       type: "oauth",
-      wellKnown: "http://localhost:5093/.well-known/openid-configuration",
+      wellKnown: `${process.env.NEXT_PUBLIC_AUTH_URL!}/.well-known/openid-configuration`,
       authorization: { params: { scope: "api" } },
       checks: ["pkce", "state"],
       clientId: "webapp",

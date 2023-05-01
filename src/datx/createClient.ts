@@ -1,9 +1,10 @@
 import { Collection } from "@datx/core";
-import { CachingStrategy, ICollectionFetchOpts, config } from "@datx/jsonapi";
+import { CachingStrategy, config } from "@datx/jsonapi";
 import { jsonapiSwrClient } from "@datx/swr";
 import { Comment } from "../models/Comment";
 import { Post } from "../models/Post";
 import { User } from "@/models/User";
+import { signIn } from "next-auth/react";
 
 import "./relationships";
 
@@ -12,11 +13,10 @@ export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
 }
 
 export function createClient() {
-  config.baseUrl = "http://129.159.254.60:25565/";
-  config.baseUrl = "http://localhost:7228/api/";
-
+  config.baseUrl = `${process.env.NEXT_PUBLIC_API_URL!}/`;
   config.cache = CachingStrategy.NetworkOnly;
-  config.transformRequest = (options: ICollectionFetchOpts) => {
+
+  config.transformRequest = (options) => {
     if (options.url.includes("?")) {
       const queryParams = options.url.split("?")[1];
 
@@ -29,6 +29,16 @@ export function createClient() {
     }
 
     return options;
+  };
+
+  // TODO: There has to be a better way
+  config.onError = (res) => {
+    if (res.status === 401 && typeof window !== "undefined") {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/me`).then(({ status }) => {
+        if (status === 401) signIn("custom");
+      });
+    }
+    return res;
   };
 
   return new JsonapiSwrClient();

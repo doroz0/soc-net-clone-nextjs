@@ -2,7 +2,7 @@ import { FC, useState } from "react";
 import { Button, ButtonGroup, Center, Flex, Text } from "@chakra-ui/react";
 import { Post as PostModel } from "@/models/Post";
 import { useMutation } from "@datx/swr";
-import { postsQuery } from "@/queries/posts";
+import { getPostsQuery } from "@/queries/posts";
 import { getModelRefMeta } from "@datx/jsonapi";
 import { deletePost } from "@/mutations/posts";
 import { mutate } from "swr";
@@ -11,8 +11,11 @@ import { CommentList } from "../CommentList/CommentList";
 import { CreateComment } from "../CreateComment/CreateComment";
 import { formatDistanceToNow } from "@/utils/dates";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { ChevronRightIcon } from "@chakra-ui/icons";
 
 export const Post: FC<{ post: PostModel }> = ({ post }) => {
+  const { push, query } = useRouter();
   const { data: session } = useSession();
   const hasOwnership = session?.user.id === post.user.id;
 
@@ -21,7 +24,7 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
 
   const [destroy, { status: destoryStatus }] = useMutation(deletePost as any, {
     onSuccess: async () => {
-      mutate(postsQuery);
+      mutate(getPostsQuery(query?.id as string));
     },
   });
 
@@ -31,9 +34,15 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
   const destroyPost = () => destroy(post.id);
 
   return (
-    <Flex flexDir="column">
+    <Flex flexDir="column" w="full">
       <Flex flexDir="column" border="1px solid black" borderRadius="8px" p="16px">
-        <Text fontWeight="bold">{`${post.user.username}${hasOwnership ? " (You)" : ""}`}</Text>
+        <ButtonGroup variant="link" colorScheme="black">
+          <Button onClick={() => push(`/users/${post.user.id}`)}>
+            <ChevronRightIcon />
+            {`${post.user.username}${hasOwnership ? " (You)" : ""}`}
+          </Button>
+        </ButtonGroup>
+
         <Text>{post.body}</Text>
 
         <Flex flexDir="column" fontSize="12px">

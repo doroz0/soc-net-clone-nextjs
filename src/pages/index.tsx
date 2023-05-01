@@ -1,27 +1,16 @@
-import { GetServerSideProps } from "next";
-import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
+import { Layout } from "@/components/shared/layouts/Layout/Layout";
+import { Button, Center, Heading } from "@chakra-ui/react";
+import Link from "next/link";
 
 export default function Home() {
-  return null;
+  return (
+    <Layout>
+      <Center flexDirection="column">
+        <Heading>Nothing to see here</Heading>
+        <Button as={Link} mt="24px" href="/posts">
+          Go to /posts
+        </Button>
+      </Center>
+    </Layout>
+  );
 }
-
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const session = await getServerSession(ctx.req, ctx.res, authOptions);
-
-  if (!session) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/login",
-      },
-    };
-  }
-
-  return {
-    redirect: {
-      permanent: false,
-      destination: "/posts",
-    },
-  };
-};

@@ -1,15 +1,17 @@
 import { PostList } from "@/components/features/post-list/PostList/PostList";
-import { PostCreator } from "@/components/features/post-list/CreatePost/CreatePost";
 import { GetServerSideProps } from "next";
 import { getServerSession } from "next-auth";
-import { authOptions } from "./api/auth/[...nextauth]";
+import { authOptions } from "../api/auth/[...nextauth]";
+import { useRouter } from "next/router";
 import { Layout } from "@/components/shared/layouts/Layout/Layout";
 
-export default function Posts() {
+export default function UserPage() {
+  const { query } = useRouter();
+  const id = query?.id as string;
+
   return (
     <Layout>
-      <PostCreator mt="24px" />
-      <PostList mt="24px" />
+      <PostList filterByUserId={id} mt="24px" />
     </Layout>
   );
 }

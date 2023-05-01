@@ -1,23 +1,26 @@
 import { CollectionResponse, IGetManyExpression, IGetOneExpression, IGetRelatedResourcesExpression } from "@datx/swr";
 import { Post } from "../models/Post";
 
-export const postsQuery: IGetManyExpression<typeof Post> = {
-  op: "getMany",
-  type: "posts",
-  queryParams: {
-    sort: "-created",
-    include: ["user"],
-    fields: {
-      users: ["id", "username"],
+export const getPostsQuery = (filterByUserId?: string) =>
+  ({
+    op: "getMany",
+    type: "posts",
+    queryParams: {
+      sort: "-created",
+      include: ["user"],
+      fields: {
+        users: ["id", "username"],
+      },
+      custom: [...(filterByUserId ? [{ key: "filter", value: `equals(user.id,\'${filterByUserId}\')` }] : [])],
     },
-  },
-};
+  } as const satisfies IGetManyExpression<typeof Post>);
 
-export const getPostQuery = (id: string): IGetOneExpression<typeof Post> => ({
-  id,
-  op: "getOne",
-  type: "posts",
-});
+export const getPostQuery = (id: string) =>
+  ({
+    id,
+    op: "getOne",
+    type: "posts",
+  } as const satisfies IGetOneExpression<typeof Post>);
 
 export const getPostComentsRelationshipPageQuery = (id: string, index = 1, size = 4) =>
   ({

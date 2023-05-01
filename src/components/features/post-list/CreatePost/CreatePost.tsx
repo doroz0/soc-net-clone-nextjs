@@ -3,16 +3,19 @@ import { useMutation } from "@datx/swr";
 import { Button, Flex, FlexProps, Input } from "@chakra-ui/react";
 import { createPost } from "@/mutations/posts";
 import { mutate } from "swr";
-import { postsQuery } from "@/queries/posts";
+import { getPostsQuery } from "@/queries/posts";
 import { lorem } from "@/utils/lorem";
+import { useRouter } from "next/router";
 
 export const PostCreator: FC<FlexProps> = ({ ...rest }) => {
+  const { query } = useRouter();
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [create, { status: createStatus }] = useMutation(createPost as any, {
-    onSuccess: async () => {
+    onSuccess: () => {
       inputRef.current!.value = "";
-      mutate(postsQuery);
+      mutate(getPostsQuery(query?.id as string));
     },
   });
 
