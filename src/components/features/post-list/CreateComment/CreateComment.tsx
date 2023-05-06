@@ -1,5 +1,5 @@
 import { FC, useRef } from "react";
-import { Button, Flex, FlexProps, Input } from "@chakra-ui/react";
+import { Button, ButtonGroup, Flex, FlexProps, Input, Textarea } from "@chakra-ui/react";
 import { Post as PostModel } from "@/models/Post";
 import { useMutation } from "@datx/swr";
 import { createComment } from "@/mutations/comments";
@@ -9,7 +9,7 @@ import { mutate } from "swr";
 import { unstable_serialize } from "swr/infinite";
 
 export const CreateComment: FC<{ post: PostModel } & FlexProps> = ({ post, ...rest }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const getKey = getPostComentsRelationshipPageKey(post.id);
 
@@ -34,14 +34,16 @@ export const CreateComment: FC<{ post: PostModel } & FlexProps> = ({ post, ...re
   };
 
   return (
-    <Flex {...rest}>
-      <Input ref={inputRef} placeholder="Add comment" />
+    <Flex direction="column" {...rest}>
+      <Textarea ref={inputRef} placeholder="Add comment" />
 
-      <Button isLoading={createStatus === "running"} onClick={comment}>
-        Comment
-      </Button>
+      <ButtonGroup mt="4px" ml="auto">
+        <Button isLoading={createStatus === "running"} onClick={comment}>
+          Comment
+        </Button>
 
-      {createStatus !== "running" && <Button onClick={randomComment}>RndComment</Button>}
+        {createStatus !== "running" && <Button onClick={randomComment}>RndComment</Button>}
+      </ButtonGroup>
     </Flex>
   );
 };

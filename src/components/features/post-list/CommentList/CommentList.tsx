@@ -12,7 +12,7 @@ export const CommentList: FC<{ post: PostModel } & StackProps> = ({ post, ...res
   const commentsFlatten = useMemo(() => (comments?.map((c) => c.data).flat() || []).reverse(), [comments]);
 
   return (
-    <VStack spacing="4px" alignItems="flex-start" {...rest}>
+    <VStack spacing="16px" alignItems="flex-start" {...rest}>
       <Button variant="link" onClick={() => setSize(size + 1)}>
         <ChevronUpIcon /> Load more
       </Button>

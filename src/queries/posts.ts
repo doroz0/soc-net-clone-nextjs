@@ -7,7 +7,7 @@ export const getPostsQuery = (filterByUserId?: string) =>
     type: "posts",
     queryParams: {
       sort: "-created",
-      include: ["user"],
+      include: ["user", "images"],
       fields: {
         users: ["id", "username"],
       },

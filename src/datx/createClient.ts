@@ -1,15 +1,16 @@
 import { Collection } from "@datx/core";
-import { CachingStrategy, config } from "@datx/jsonapi";
+import { CachingStrategy, IHeaders, IRawResponse, config } from "@datx/jsonapi";
 import { jsonapiSwrClient } from "@datx/swr";
 import { Comment } from "../models/Comment";
 import { Post } from "../models/Post";
 import { User } from "@/models/User";
+import { Image } from "@/models/Image";
 import { signIn } from "next-auth/react";
 
 import "./relationships";
 
 export class JsonapiSwrClient extends jsonapiSwrClient(Collection) {
-  public static types = [Post, Comment, User];
+  public static types = [Post, Comment, User, Image];
 }
 
 export function createClient() {
@@ -30,6 +31,31 @@ export function createClient() {
 
     return options;
   };
+
+  if (typeof window !== "undefined") {
+    config.fetchReference = async (input: RequestInfo | URL, init?: RequestInit | undefined): Promise<Response> => {
+      // TODO: Please let there be a better way
+      if (init?.method === "UPLOAD") {
+        try {
+          const formData = new FormData();
+          const blob = JSON.parse(init.body as any).blob as string;
+          const file = await fetch(blob).then((r) => r.blob());
+          formData.append("file", file);
+
+          Object.assign(init, {
+            method: "POST",
+            body: formData,
+            headers: { ...init.headers },
+          });
+          delete (init!.headers as any)["content-type"];
+
+          return window.fetch(input, init);
+        } catch {}
+      }
+
+      return window.fetch(input, init);
+    };
+  }
 
   // TODO: There has to be a better way
   config.onError = (res) => {

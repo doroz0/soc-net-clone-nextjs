@@ -1,10 +1,11 @@
 import { getModelEndpointUrl, modelToJsonApi } from "@datx/jsonapi";
 import { Post } from "../models/Post";
+import { Image } from "../models/Image";
 import { updateModel } from "@datx/core";
 import { JsonapiSwrClient } from "@/datx/createClient";
 
-export const createPost = (client: JsonapiSwrClient, body: string) => {
-  const model = new Post({ body });
+export const createPost = (client: JsonapiSwrClient, { body, images }: { body: string; images?: Image[] }) => {
+  const model = new Post({ body, images }, client);
   const url = getModelEndpointUrl(model);
   const data = modelToJsonApi(model);
   delete data.relationships.user;

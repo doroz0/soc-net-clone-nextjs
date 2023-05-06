@@ -2,6 +2,7 @@ import { Attribute, PureModel } from "@datx/core";
 import { jsonapiModel } from "@datx/jsonapi";
 import { Comment } from "./Comment";
 import { User } from "./User";
+import { Image } from "./Image";
 
 export class Post extends jsonapiModel(PureModel) {
   public static readonly type = "posts";
@@ -21,4 +22,6 @@ export class Post extends jsonapiModel(PureModel) {
   comments!: Comment[];
 
   user!: User;
+
+  images!: Image[];
 }

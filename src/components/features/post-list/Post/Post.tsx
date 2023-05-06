@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { Button, ButtonGroup, Center, Flex, Text } from "@chakra-ui/react";
+import { Button, ButtonGroup, Flex, HStack, Image, Text } from "@chakra-ui/react";
 import { Post as PostModel } from "@/models/Post";
 import { useMutation } from "@datx/swr";
 import { getPostsQuery } from "@/queries/posts";
@@ -35,7 +35,7 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
 
   return (
     <Flex flexDir="column" w="full">
-      <Flex flexDir="column" border="1px solid black" borderRadius="8px" p="16px">
+      <Flex flexDir="column" border="1px solid" borderColor="chakra-border-color" borderRadius="8px" p="16px">
         <ButtonGroup variant="link" colorScheme="black">
           <Button onClick={() => push(`/users/${post.user.id}`)}>
             <ChevronRightIcon />
@@ -45,18 +45,32 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
 
         <Text>{post.body}</Text>
 
+        {post.images?.length > 0 && (
+          <Flex my="16px" overflowX="auto">
+            <HStack spacing="8px">
+              {post.images.map(({ url }) => (
+                <Image key={url} boxSize="120px" objectFit="cover" src={url} alt="Photo" />
+              ))}
+            </HStack>
+          </Flex>
+        )}
+
         <Flex flexDir="column" fontSize="12px">
           <Text>Created: {formatDistanceToNow(post.created)}</Text>
           {post.modified && <Text>Modified: {formatDistanceToNow(post.modified)}</Text>}
         </Flex>
 
-        <Flex my="16px" ml="-16px" h="1px" w="calc(100% + 32px)" bg="black" />
+        <Flex my="16px" ml="-16px" w="calc(100% + 32px)" borderTop="1px solid" borderColor="chakra-border-color" />
 
         <ButtonGroup justifyContent="flex-end" variant="ghost" size="xs">
-          <Button color="red.500" onClick={destroyPost} isLoading={destoryStatus === "running"}>
-            Delete post
-          </Button>
-          <Button onClick={toggleEditPost}>Edit post</Button>
+          {hasOwnership && (
+            <>
+              <Button color="red.500" onClick={destroyPost} isLoading={destoryStatus === "running"}>
+                Delete post
+              </Button>
+              <Button onClick={toggleEditPost}>Edit post</Button>
+            </>
+          )}
           <Button onClick={toggleComments}>
             {showComments ? "Hide" : "See"} comments ({commentsCount})
           </Button>
@@ -68,7 +82,8 @@ export const Post: FC<{ post: PostModel }> = ({ post }) => {
           direction="column"
           mx="24px"
           p="8px"
-          border="solid 1px black"
+          border="solid 1px"
+          borderColor="chakra-border-color"
           borderTop="none"
           borderBottomRadius="8px"
           bg="blackAlpha.100"

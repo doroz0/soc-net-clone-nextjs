@@ -1,6 +1,6 @@
 import { FC, ReactNode } from "react";
 import { Container } from "@chakra-ui/react";
-import { TopNavBar } from "../../navigation/TopNavBar/TopNavBar";
+import { TopNavBar } from "../../../features/navigation/TopNavBar/TopNavBar";
 
 interface ILayout {
   children?: ReactNode;

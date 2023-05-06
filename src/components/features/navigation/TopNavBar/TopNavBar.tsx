@@ -1,15 +1,17 @@
 import { FC } from "react";
-import { Button, ButtonGroup, Center, Heading } from "@chakra-ui/react";
+import { Button, ButtonGroup, Center, Heading, IconButton, useColorMode } from "@chakra-ui/react";
 import { useRouter } from "next/router";
 import { routes } from "@/consts/routes";
 import { useDatx } from "@datx/swr";
 import { getUserQuery } from "@/queries/users";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { MoonIcon, SunIcon } from "@chakra-ui/icons";
 
 export const TopNavBar: FC = () => {
   const { push, route, query } = useRouter();
   const { data: session, status } = useSession();
+  const { colorMode, toggleColorMode } = useColorMode();
 
   const { data: user } = useDatx(route === "/users/[id]" && query?.id ? getUserQuery(query!.id as string) : null);
 
@@ -24,6 +26,11 @@ export const TopNavBar: FC = () => {
       </Heading>
 
       <ButtonGroup pos="absolute" right="24px" variant="ghost">
+        <IconButton
+          icon={colorMode === "dark" ? <SunIcon /> : <MoonIcon />}
+          aria-label="Change color mode"
+          onClick={toggleColorMode}
+        />
         {status === "authenticated" && <Button onClick={() => push("/logout")}>Logout</Button>}
         {status === "unauthenticated" && <Button onClick={() => push("/login")}>Login</Button>}
       </ButtonGroup>

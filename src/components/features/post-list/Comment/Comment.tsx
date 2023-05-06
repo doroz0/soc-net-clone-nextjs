@@ -41,10 +41,10 @@ export const Comment: FC<{ comment: CommentModel }> = ({ comment }) => {
   };
 
   return (
-    <Flex flexDir="column" w="full">
+    <Flex flexDir="column" w="full" px={{ base: "0", md: "24px" }}>
       <Center justifyContent="space-between">
         <Text fontWeight="bold">{`${comment.user.username}${hasOwnership ? " (You)" : ""}`}</Text>
-        {!isEditing && (
+        {hasOwnership && !isEditing && (
           <ButtonGroup size="sm">
             <IconButton icon={<EditIcon />} aria-label="Edit" onClick={toggleEditMode} />
             <IconButton icon={<CloseIcon />} aria-label="Delete" color="red.500" onClick={destroyComment} />
